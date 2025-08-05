@@ -9,6 +9,7 @@ import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Platform } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -76,12 +77,14 @@ function AppContent() {
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

@@ -1,8 +1,20 @@
 import { Groq } from "groq-sdk";
+import Constants from "expo-constants";
+
+// Groq API configuration from Expo Constants (app.json) or environment variables
+const groqApiKey = 
+  Constants.expoConfig?.extra?.GROQ_API_KEY || 
+  process.env.EXPO_PUBLIC_GROQ_API_KEY || 
+  process.env.GROQ_API_KEY;
+
+// Add validation to prevent crashes
+if (!groqApiKey || groqApiKey === 'undefined') {
+  console.error('Groq API Key is not set in app.json extra or environment variables');
+}
 
 // Initialize Groq client
 const groq = new Groq({
-  apiKey: process.env.EXPO_PUBLIC_GROQ_API_KEY,
+  apiKey: groqApiKey,
 });
 
 interface TaskPriorityResult {

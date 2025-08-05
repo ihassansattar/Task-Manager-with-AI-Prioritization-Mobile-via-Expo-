@@ -132,12 +132,16 @@ export function useTasks() {
 
   return {
     tasks,
-    loading: isLoading,
+    loading: isLoading || createTaskMutation.isPending,
     error: isError ? error.message : null,
     createTask: createTaskMutation.mutateAsync,
     updateTask: (id: string, data: UpdateTaskData) => updateTaskMutation.mutateAsync({ id, data }),
     deleteTask: deleteTaskMutation.mutateAsync,
     toggleTaskComplete: toggleTaskCompleteMutation.mutateAsync,
     refreshTasks: () => queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] }),
+    isCreating: createTaskMutation.isPending,
+    isUpdating: updateTaskMutation.isPending,
+    isDeleting: deleteTaskMutation.isPending,
+    isToggling: toggleTaskCompleteMutation.isPending,
   };
 }
