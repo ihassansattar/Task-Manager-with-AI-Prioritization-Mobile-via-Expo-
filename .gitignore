@@ -38,3 +38,6 @@ yarn-error.*
 
 # APK files
 *.apk
+
+# App configuration with sensitive keys
+app.json
