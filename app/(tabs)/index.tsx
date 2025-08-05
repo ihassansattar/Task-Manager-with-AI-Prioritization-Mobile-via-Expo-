@@ -45,16 +45,18 @@ export default function TaskListScreen() {
   const currentTasks = activeTab === "pending" ? pendingTasks : completedTasks;
 
   const handleToggleComplete = async (id: string) => {
-    const { error } = await toggleTaskComplete(id);
-    if (error) {
-      Alert.alert("Error", error);
+    try {
+      await toggleTaskComplete(id);
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
     }
   };
 
   const handleDeleteTask = async (id: string) => {
-    const { error } = await deleteTask(id);
-    if (error) {
-      Alert.alert("Error", error);
+    try {
+      await deleteTask(id);
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
     }
   };
 
@@ -177,7 +179,9 @@ export default function TaskListScreen() {
         </View>
 
         {/* Task List */}
-        {currentTasks.length === 0 ? (
+        {loading && <Text className={`${isDark ? 'text-white' : 'text-black'}`}>Loading...</Text>}
+        {error && <Text className="text-red-500">{error}</Text>}
+        {!loading && !error && currentTasks.length === 0 ? (
           renderEmptyState()
         ) : (
           <FlatList

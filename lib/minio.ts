@@ -3,13 +3,13 @@ import Constants from "expo-constants";
 
 // MinIO configuration from Expo Constants
 const MINIO_CONFIG = {
-  endpoint: Constants.expoConfig?.extra?.MINIO_ENDPOINT,
-  port: Constants.expoConfig?.extra?.MINIO_PORT,
-  accessKey: Constants.expoConfig?.extra?.MINIO_ACCESS_KEY,
-  secretKey: Constants.expoConfig?.extra?.MINIO_SECRET_KEY,
-  bucket: Constants.expoConfig?.extra?.MINIO_BUCKET,
-  publicUrl: Constants.expoConfig?.extra?.MINIO_PUBLIC_URL,
-  useSSL: Constants.expoConfig?.extra?.MINIO_USE_SSL === "true",
+  endpoint:
+    Constants.expoConfig?.extra?.MINIO_ENDPOINT || process.env.MINIO_ENDPOINT,
+  port: Constants.expoConfig?.extra?.MINIO_PORT || process.env.MINIO_PORT,
+  bucket: Constants.expoConfig?.extra?.MINIO_BUCKET || process.env.MINIO_BUCKET,
+  publicUrl:
+    Constants.expoConfig?.extra?.MINIO_PUBLIC_URL ||
+    process.env.MINIO_PUBLIC_URL,
 };
 
 interface UploadResponse {
@@ -22,34 +22,20 @@ class MinIOService {
   private baseUrl: string;
 
   constructor() {
-    const protocol = MINIO_CONFIG.useSSL ? "https" : "http";
-    this.baseUrl = `${protocol}://${MINIO_CONFIG.endpoint}:${MINIO_CONFIG.port}`;
+    this.baseUrl = `http://${MINIO_CONFIG.endpoint}:${MINIO_CONFIG.port}`;
   }
 
   /**
    * Generate a unique filename for the uploaded image
    */
   private generateFileName(userId: string, extension: string): string {
-    const timestamp = Date.now();
-    return `avatars/${userId}-${timestamp}.${extension}`;
+    return `avatars/${userId}.${extension}`;
   }
 
   /**
    * Get the file extension from a URI or MIME type
    */
-  private getFileExtension(uri: string, mimeType?: string): string {
-    if (mimeType) {
-      const mimeToExt: { [key: string]: string } = {
-        "image/jpeg": "jpg",
-        "image/jpg": "jpg",
-        "image/png": "png",
-        "image/gif": "gif",
-        "image/webp": "webp",
-      };
-      return mimeToExt[mimeType] || "jpg";
-    }
-
-    // Fallback to extracting from URI
+  private getFileExtension(uri: string): string {
     const extension = uri.split(".").pop()?.toLowerCase();
     return extension &&
       ["jpg", "jpeg", "png", "gif", "webp"].includes(extension)
@@ -65,9 +51,6 @@ class MinIOService {
     imageUri: string
   ): Promise<UploadResponse> {
     try {
-      console.log("Starting profile image upload for user:", userId);
-      console.log("Image URI:", imageUri);
-
       // Get file info
       const fileInfo = await FileSystem.getInfoAsync(imageUri);
       if (!fileInfo.exists) {
@@ -83,53 +66,43 @@ class MinIOService {
         return { success: false, error: "Failed to read image data" };
       }
 
-      // Determine file extension
+      // Determine file extension and generate filename
       const extension = this.getFileExtension(imageUri);
       const fileName = this.generateFileName(userId, extension);
-
-      console.log("Generated filename:", fileName);
+      const contentType = `image/${extension}`;
 
       // Convert base64 to binary data
       const binaryData = Uint8Array.from(atob(base64Data), (c) =>
         c.charCodeAt(0)
       );
 
-      const uploadUrl = `${this.baseUrl}/${MINIO_CONFIG.bucket}/${fileName}`;
+      // Upload URL
+      const uploadUrl = `${this.baseUrl}/${MINIO_CONFIG.bucket}/avatars/${fileName}`;
 
-      console.log("Upload URL:", uploadUrl);
-
-      // Upload using fetch with binary data
+      // Upload using fetch
       const uploadResponse = await fetch(uploadUrl, {
         method: "PUT",
         body: binaryData,
         headers: {
-          "Content-Type": `image/${extension}`,
+          "Content-Type": contentType,
           "Content-Length": binaryData.length.toString(),
-          "x-amz-acl": "public-read",
         },
       });
 
-      console.log("Upload response status:", uploadResponse.status);
-
-      if (uploadResponse.ok || uploadResponse.status === 200) {
-        const publicUrl = `${MINIO_CONFIG.publicUrl}/${MINIO_CONFIG.bucket}/${fileName}`;
-        console.log("Upload successful, public URL:", publicUrl);
-
+      if (uploadResponse.ok) {
+        const publicUrl = `${MINIO_CONFIG.publicUrl}/${MINIO_CONFIG.bucket}/avatars/${fileName}`;
         return {
           success: true,
           url: publicUrl,
         };
       } else {
         const errorText = await uploadResponse.text();
-        console.error("Upload failed:", uploadResponse.status, errorText);
-
         return {
           success: false,
           error: `Upload failed: ${uploadResponse.status} ${errorText}`,
         };
       }
     } catch (error: any) {
-      console.error("MinIO upload error:", error);
       return {
         success: false,
         error: error.message || "Upload failed",
@@ -144,31 +117,23 @@ class MinIOService {
     imageUrl: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      // Extract filename from URL
       const urlParts = imageUrl.split("/");
       const fileName = urlParts[urlParts.length - 1];
       const folder = urlParts[urlParts.length - 2];
-      const fullPath = `${folder}/${fileName}`;
 
-      const deleteUrl = `${this.baseUrl}/${MINIO_CONFIG.bucket}/${fullPath}`;
+      const deleteUrl = `${this.baseUrl}/${MINIO_CONFIG.bucket}/${folder}/${fileName}`;
 
       const deleteResponse = await fetch(deleteUrl, {
         method: "DELETE",
-        headers: {
-          Authorization: `AWS ${MINIO_CONFIG.accessKey}:${MINIO_CONFIG.secretKey}`,
-        },
       });
 
-      if (deleteResponse.ok) {
-        return { success: true };
-      } else {
-        return {
-          success: false,
-          error: `Delete failed: ${deleteResponse.status}`,
-        };
-      }
+      return {
+        success: deleteResponse.ok,
+        error: !deleteResponse.ok
+          ? `Delete failed: ${deleteResponse.status}`
+          : undefined,
+      };
     } catch (error: any) {
-      console.error("MinIO delete error:", error);
       return {
         success: false,
         error: error.message || "Delete failed",

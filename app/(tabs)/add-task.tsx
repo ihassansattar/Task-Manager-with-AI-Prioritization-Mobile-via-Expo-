@@ -19,10 +19,9 @@ import Toast from "react-native-toast-message";
 
 export default function AddTaskScreen() {
   const { isDark } = useTheme();
-  const { createTask } = useTasks();
+  const { createTask, loading } = useTasks();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
   const titleInputRef = useRef<TextInput>(null);
 
   useFocusEffect(
@@ -42,39 +41,27 @@ export default function AddTaskScreen() {
       return;
     }
 
-    setLoading(true);
-
     try {
-      const { error } = await createTask({
+      await createTask({
         title: title.trim(),
         description: description.trim() || undefined,
       });
 
-      if (error) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: error,
-        });
-      } else {
-        Toast.show({
-          type: "success",
-          text1: "Task Created!",
-          text2: "Your task has been added successfully",
-        });
-        // Reset form and navigate back
-        setTitle("");
-        setDescription("");
-        router.back();
-      }
-    } catch (err: any) {
+      Toast.show({
+        type: "success",
+        text1: "Task Created!",
+        text2: "Your task has been added successfully",
+      });
+      // Reset form and navigate back
+      setTitle("");
+      setDescription("");
+      router.back();
+    } catch (error: any) {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "An unexpected error occurred",
+        text2: error.message || "An unexpected error occurred",
       });
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 import { useTasks } from './useTasks';
 
@@ -17,91 +17,41 @@ interface ProfileData {
   averageAiScore: number;
 }
 
-interface UseProfileReturn {
-  profile: ProfileData | null;
-  loading: boolean;
-  error: string | null;
-  refreshProfile: () => void;
-}
-
-export function useProfile(): UseProfileReturn {
+export function useProfile() {
   const { user: authUser } = useAuth();
   const { tasks, loading: tasksLoading, error: tasksError } = useTasks();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Calculate task statistics from real tasks data
-  const taskStats = useMemo(() => {
-    if (!tasks.length) {
-      return {
-        totalTasks: 0,
-        completedTasks: 0,
-        pendingTasks: 0,
-        highPriorityTasks: 0,
-        mediumPriorityTasks: 0,
-        lowPriorityTasks: 0,
-        averageAiScore: 0,
+  const { data: profile, isLoading, isError, error, refetch } = useQuery<ProfileData | null, Error>({
+    queryKey: ['profile', authUser?.id, tasks],
+    queryFn: async () => {
+      if (!authUser) return null;
+
+      const taskStats = {
+        totalTasks: tasks.length,
+        completedTasks: tasks.filter(task => task.completed).length,
+        pendingTasks: tasks.filter(task => !task.completed).length,
+        highPriorityTasks: tasks.filter(task => task.priority === 'high').length,
+        mediumPriorityTasks: tasks.filter(task => task.priority === 'medium').length,
+        lowPriorityTasks: tasks.filter(task => task.priority === 'low').length,
+        averageAiScore: tasks.length > 0 ? Math.round(tasks.reduce((sum, task) => sum + (task.aiPriorityScore || 0), 0) / tasks.length) : 0,
       };
-    }
 
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(task => task.completed).length;
-    const pendingTasks = tasks.filter(task => !task.completed).length;
-    
-    const highPriorityTasks = tasks.filter(task => task.priority === 'high').length;
-    const mediumPriorityTasks = tasks.filter(task => task.priority === 'medium').length;
-    const lowPriorityTasks = tasks.filter(task => task.priority === 'low').length;
-    
-    const totalAiScore = tasks.reduce((sum, task) => sum + (task.aiPriorityScore || 0), 0);
-    const averageAiScore = totalTasks > 0 ? Math.round(totalAiScore / totalTasks) : 0;
-
-    return {
-      totalTasks,
-      completedTasks,
-      pendingTasks,
-      highPriorityTasks,
-      mediumPriorityTasks,
-      lowPriorityTasks,
-      averageAiScore,
-    };
-  }, [tasks]);
-
-  // Build profile data from auth user + task statistics
-  const profile: ProfileData | null = useMemo(() => {
-    if (!authUser) return null;
-
-    return {
-      id: authUser.id,
-      name: authUser.user_metadata?.full_name || 
-            authUser.email?.split('@')[0] || 
-            'User',
-      email: authUser.email || '',
-      profilePicture: authUser.user_metadata?.avatar_url || null,
-      joinedDate: new Date(authUser.created_at),
-      ...taskStats,
-    };
-  }, [authUser, taskStats]);
-
-  // Update loading state
-  useEffect(() => {
-    setLoading(tasksLoading);
-  }, [tasksLoading]);
-
-  // Update error state
-  useEffect(() => {
-    setError(tasksError);
-  }, [tasksError]);
-
-  const refreshProfile = () => {
-    // Profile data is automatically refreshed when tasks refresh
-    // since it's computed from tasks data
-    console.log('Profile data refreshed automatically with tasks');
-  };
+      return {
+        id: authUser.id,
+        name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
+        email: authUser.email || '',
+        profilePicture: authUser.user_metadata?.avatar_url || null,
+        joinedDate: new Date(authUser.created_at),
+        ...taskStats,
+      };
+    },
+    enabled: !!authUser && !tasksLoading,
+  });
 
   return {
     profile,
-    loading,
-    error,
-    refreshProfile,
+    loading: isLoading || tasksLoading,
+    error: isError ? error.message : tasksError,
+    refreshProfile: refetch,
   };
 }

@@ -5,6 +5,9 @@ import { StatusBar } from 'expo-status-bar';
 import { ThemeContext, useThemeState } from '../hooks/useTheme';
 import { AuthProvider } from '../hooks/useAuth';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const toastConfig = {
   success: (props) => (
@@ -36,16 +39,18 @@ export default function RootLayout() {
   const backgroundColor = themeState.isDark ? '#121212' : '#FFFFFF';
 
   return (
-    <AuthProvider>
-      <ThemeContext.Provider value={themeState}>
-        <StatusBar style={themeState.isDark ? 'light' : 'dark'} backgroundColor={backgroundColor} />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-        <Toast config={toastConfig} />
-      </ThemeContext.Provider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeContext.Provider value={themeState}>
+          <StatusBar style={themeState.isDark ? 'light' : 'dark'} backgroundColor={backgroundColor} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+          <Toast config={toastConfig} />
+        </ThemeContext.Provider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -25,13 +25,6 @@ export default function ProfileScreen() {
   const { user, signOut, updateAvatar } = useAuth();
   const { profile, loading, error, refreshProfile } = useProfile();
   const { uploading, uploadImage } = useImageUpload();
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    refreshProfile();
-    setTimeout(() => setRefreshing(false), 1000);
-  };
 
   // Show loading state
   if (loading && !profile) {
@@ -287,8 +280,8 @@ export default function ProfileScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
+              refreshing={loading}
+              onRefresh={refreshProfile}
               tintColor={isDark ? "#D10000" : "#D10000"}
             />
           }
