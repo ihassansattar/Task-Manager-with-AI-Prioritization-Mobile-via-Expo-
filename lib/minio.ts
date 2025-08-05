@@ -1,14 +1,15 @@
 import * as FileSystem from "expo-file-system";
+import Constants from "expo-constants";
 
-// MinIO configuration from environment variables
+// MinIO configuration from Expo Constants
 const MINIO_CONFIG = {
-  endpoint: process.env.MINIO_ENDPOINT,
-  port: process.env.MINIO_PORT,
-  accessKey: process.env.MINIO_ACCESS_KEY,
-  secretKey: process.env.MINIO_SECRET_KEY,
-  bucket: process.env.MINIO_BUCKET,
-  publicUrl: process.env.MINIO_PUBLIC_URL,
-  useSSL: process.env.MINIO_USE_SSL === "true",
+  endpoint: Constants.expoConfig?.extra?.MINIO_ENDPOINT,
+  port: Constants.expoConfig?.extra?.MINIO_PORT,
+  accessKey: Constants.expoConfig?.extra?.MINIO_ACCESS_KEY,
+  secretKey: Constants.expoConfig?.extra?.MINIO_SECRET_KEY,
+  bucket: Constants.expoConfig?.extra?.MINIO_BUCKET,
+  publicUrl: Constants.expoConfig?.extra?.MINIO_PUBLIC_URL,
+  useSSL: Constants.expoConfig?.extra?.MINIO_USE_SSL === "true",
 };
 
 interface UploadResponse {

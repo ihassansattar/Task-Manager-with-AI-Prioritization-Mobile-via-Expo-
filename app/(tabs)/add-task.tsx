@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,11 +12,10 @@ import {
   StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useTheme } from "../../hooks/useTheme";
 import { useTasks } from "../../hooks/useTasks";
 import Toast from "react-native-toast-message";
-import { Task } from "../../types/task";
 
 export default function AddTaskScreen() {
   const { isDark } = useTheme();
@@ -24,6 +23,14 @@ export default function AddTaskScreen() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+  const titleInputRef = useRef<TextInput>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Focus the title input when the screen comes into view
+      titleInputRef.current?.focus();
+    }, [])
+  );
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -38,10 +45,9 @@ export default function AddTaskScreen() {
     setLoading(true);
 
     try {
-      const { task, error } = await createTask({
+      const { error } = await createTask({
         title: title.trim(),
         description: description.trim() || undefined,
-        // Priority will be determined by AI
       });
 
       if (error) {
@@ -56,7 +62,9 @@ export default function AddTaskScreen() {
           text1: "Task Created!",
           text2: "Your task has been added successfully",
         });
-        // Force refresh of the main screen
+        // Reset form and navigate back
+        setTitle("");
+        setDescription("");
         router.back();
       }
     } catch (err: any) {
@@ -178,6 +186,7 @@ export default function AddTaskScreen() {
               Task Title *
             </Text>
             <TextInput
+              ref={titleInputRef}
               value={title}
               onChangeText={setTitle}
               placeholder="What needs to be done?"
@@ -187,7 +196,6 @@ export default function AddTaskScreen() {
                   ? "bg-gray-800 border-gray-700 text-white"
                   : "bg-white border-gray-300 text-gray-900"
               }`}
-              autoFocus
               multiline
               textAlignVertical="top"
               style={{ minHeight: 50 }}
