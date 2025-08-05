@@ -109,7 +109,7 @@ export default function AddTaskScreen() {
           </TouchableOpacity>
 
           <Text
-            className={`text-lg font-semibold ${
+            className={`text-lg font-semibold pl-12 ${
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
@@ -242,7 +242,9 @@ export default function AddTaskScreen() {
                   isDark ? "text-gray-400" : "text-gray-600"
                 }`}
               >
-                Our AI will analyze your task content, context, and urgency to automatically assign the optimal priority level when you save the task.
+                Our AI will analyze your task content, context, and urgency to
+                automatically assign the optimal priority level when you save
+                the task.
               </Text>
               <View className="flex-row items-center mt-2">
                 <Ionicons name="bulb-outline" size={16} color="#D10000" />

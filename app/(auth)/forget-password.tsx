@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   StatusBar,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -15,7 +16,10 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Toast from "react-native-toast-message";
 import { useTheme } from "../../hooks/useTheme";
-import { forgetPasswordSchema, ForgetPasswordFormData } from "../../lib/validations";
+import {
+  forgetPasswordSchema,
+  ForgetPasswordFormData,
+} from "../../lib/validations";
 
 export default function ForgetPasswordScreen() {
   const { isDark } = useTheme();
@@ -50,7 +54,8 @@ export default function ForgetPasswordScreen() {
       Toast.show({
         type: "success",
         text1: "Reset Link Sent",
-        text2: "If an account with this email exists, we've sent you a password reset link.",
+        text2:
+          "If an account with this email exists, we've sent you a password reset link.",
       });
       router.back();
     }, 1000);
@@ -81,9 +86,14 @@ export default function ForgetPasswordScreen() {
           </TouchableOpacity>
         </View>
 
-        <View className="flex-1 px-6 justify-center">
-          {/* Title */}
-          <View className="mb-8">
+        <View className="flex-1 px-6 justify-center -mt-32">
+          {/* App Icon and Title */}
+          <View className="items-center mb-8">
+            <Image
+              source={require("../../assets/app.png")}
+              className="w-32 h-32 rounded-2xl mb-4"
+              resizeMode="contain"
+            />
             <Text
               className={`text-3xl font-bold mb-2 ${
                 isDark ? "text-white" : "text-gray-900"

@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   StatusBar,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -101,9 +102,14 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <View className="flex-1 px-6 justify-center">
-          {/* Title */}
-          <View className="mb-8">
+        <View className="flex-1 px-6 justify-center -mt-32">
+          {/* App Icon and Title */}
+          <View className="items-center mb-8">
+            <Image
+              source={require("../../assets/app.png")}
+              className="w-32 h-32 rounded-2xl mb-4"
+              resizeMode="contain"
+            />
             <Text
               className={`text-3xl font-bold mb-2 ${
                 isDark ? "text-white" : "text-gray-900"
@@ -116,7 +122,7 @@ export default function LoginScreen() {
                 isDark ? "text-gray-300" : "text-gray-600"
               }`}
             >
-              Sign in to continue
+              Sign in to TaskFlow AI
             </Text>
           </View>
 

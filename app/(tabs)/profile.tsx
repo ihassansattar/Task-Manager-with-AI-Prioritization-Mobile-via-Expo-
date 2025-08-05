@@ -29,16 +29,26 @@ export default function ProfileScreen() {
   // Show loading state
   if (loading && !profile) {
     return (
-      <SafeAreaView className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}>
+      <SafeAreaView
+        className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}
+      >
         <View className="flex-1 justify-center items-center">
           <View
             className={`w-16 h-16 rounded-full ${
               isDark ? "bg-gray-800" : "bg-gray-200"
             } justify-center items-center mb-4`}
           >
-            <Ionicons name="person-outline" size={32} color={isDark ? "#6B7280" : "#9CA3AF"} />
+            <Ionicons
+              name="person-outline"
+              size={32}
+              color={isDark ? "#6B7280" : "#9CA3AF"}
+            />
           </View>
-          <Text className={`${isDark ? "text-white" : "text-gray-900"} text-lg font-medium`}>
+          <Text
+            className={`${
+              isDark ? "text-white" : "text-gray-900"
+            } text-lg font-medium`}
+          >
             Loading profile...
           </Text>
         </View>
@@ -49,7 +59,9 @@ export default function ProfileScreen() {
   // Show error state
   if (error && !profile) {
     return (
-      <SafeAreaView className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}>
+      <SafeAreaView
+        className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}
+      >
         <View className="flex-1 justify-center items-center px-8">
           <View
             className={`w-16 h-16 rounded-full ${
@@ -58,10 +70,18 @@ export default function ProfileScreen() {
           >
             <Ionicons name="alert-circle-outline" size={32} color="#EF4444" />
           </View>
-          <Text className={`${isDark ? "text-white" : "text-gray-900"} text-lg font-medium mb-2`}>
+          <Text
+            className={`${
+              isDark ? "text-white" : "text-gray-900"
+            } text-lg font-medium mb-2`}
+          >
             Unable to load profile
           </Text>
-          <Text className={`${isDark ? "text-gray-400" : "text-gray-600"} text-center`}>
+          <Text
+            className={`${
+              isDark ? "text-gray-400" : "text-gray-600"
+            } text-center`}
+          >
             {error}
           </Text>
         </View>
@@ -77,6 +97,14 @@ export default function ProfileScreen() {
     router.push("/change-password");
   };
 
+  const handlePrivacyPolicy = () => {
+    router.push("/privacy-policy");
+  };
+
+  const handleContactUs = () => {
+    router.push("/contact-us");
+  };
+
   const handleChangeProfilePicture = async () => {
     if (!user) {
       Toast.show({
@@ -89,11 +117,11 @@ export default function ProfileScreen() {
 
     try {
       const result = await uploadImage(user.id);
-      
+
       if (result.success && result.url) {
         // Update the avatar URL in Supabase
         const { error } = await updateAvatar(result.url);
-        
+
         if (error) {
           Toast.show({
             type: "error",
@@ -106,7 +134,7 @@ export default function ProfileScreen() {
             text1: "Success!",
             text2: "Profile picture updated successfully",
           });
-          
+
           // Refresh profile to show new image
           refreshProfile();
         }
@@ -126,7 +154,7 @@ export default function ProfileScreen() {
         text1: "Error",
         text2: "An unexpected error occurred",
       });
-      console.error('Profile picture upload error:', error);
+      console.error("Profile picture upload error:", error);
     }
   };
 
@@ -139,7 +167,6 @@ export default function ProfileScreen() {
         onPress: async () => {
           try {
             await signOut();
-            router.replace("/");
           } catch (error) {
             Alert.alert("Error", "Failed to logout");
           }
@@ -149,9 +176,14 @@ export default function ProfileScreen() {
   };
 
   const renderProfilePicture = () => {
-    const avatarUrl = user?.user_metadata?.avatar_url || profile?.profilePicture;
-    const userName = profile?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
-    
+    const avatarUrl =
+      user?.user_metadata?.avatar_url || profile?.profilePicture;
+    const userName =
+      profile?.name ||
+      user?.user_metadata?.full_name ||
+      user?.email?.split("@")[0] ||
+      "User";
+
     if (avatarUrl) {
       return (
         <Image
@@ -317,14 +349,17 @@ export default function ProfileScreen() {
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              {profile?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+              {profile?.name ||
+                user?.user_metadata?.full_name ||
+                user?.email?.split("@")[0] ||
+                "User"}
             </Text>
             <Text
               className={`text-sm ${
                 isDark ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              {user?.email || ''}
+              {user?.email || ""}
             </Text>
             <Text
               className={`text-xs mt-1 ${
@@ -335,10 +370,11 @@ export default function ProfileScreen() {
               {profile?.joinedDate?.toLocaleDateString("en-US", {
                 month: "long",
                 year: "numeric",
-              }) || new Date().toLocaleDateString("en-US", {
-                month: "long",
-                year: "numeric",
-              })}
+              }) ||
+                new Date().toLocaleDateString("en-US", {
+                  month: "long",
+                  year: "numeric",
+                })}
             </Text>
           </View>
 
@@ -378,7 +414,7 @@ export default function ProfileScreen() {
                   Task Analytics
                 </Text>
               </View>
-              
+
               <View className="flex-row gap-3">
                 <View className="flex-1 items-center">
                   <Text
@@ -388,11 +424,15 @@ export default function ProfileScreen() {
                   >
                     {profile.averageAiScore}
                   </Text>
-                  <Text className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                  <Text
+                    className={`text-xs ${
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
                     Avg AI Score
                   </Text>
                 </View>
-                
+
                 <View className="flex-1 items-center">
                   <Text
                     className={`text-xl font-bold ${
@@ -401,20 +441,33 @@ export default function ProfileScreen() {
                   >
                     {profile.highPriorityTasks}
                   </Text>
-                  <Text className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                  <Text
+                    className={`text-xs ${
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
                     High Priority
                   </Text>
                 </View>
-                
+
                 <View className="flex-1 items-center">
                   <Text
                     className={`text-xl font-bold ${
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    {Math.round((profile.completedTasks / Math.max(profile.totalTasks, 1)) * 100)}%
+                    {Math.round(
+                      (profile.completedTasks /
+                        Math.max(profile.totalTasks, 1)) *
+                        100
+                    )}
+                    %
                   </Text>
-                  <Text className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                  <Text
+                    className={`text-xs ${
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
                     Completion Rate
                   </Text>
                 </View>
@@ -438,6 +491,16 @@ export default function ProfileScreen() {
               icon="image-outline"
               title="Change Profile Picture"
               onPress={handleChangeProfilePicture}
+            />
+            <MenuItem
+              icon="shield-checkmark-outline"
+              title="Privacy Policy"
+              onPress={handlePrivacyPolicy}
+            />
+            <MenuItem
+              icon="mail-outline"
+              title="Contact Us"
+              onPress={handleContactUs}
             />
           </View>
 

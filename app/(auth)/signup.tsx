@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   StatusBar,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -80,7 +81,6 @@ export default function SignUpScreen() {
     }
   };
 
-
   return (
     <SafeAreaView className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}>
       <KeyboardAvoidingView
@@ -110,8 +110,13 @@ export default function SignUpScreen() {
           className="flex-1 px-6"
           showsVerticalScrollIndicator={false}
         >
-          {/* Title */}
-          <View className="mb-8">
+          {/* App Icon and Title */}
+          <View className="items-center mb-8">
+            <Image
+              source={require("../../assets/app.png")}
+              className="w-32 h-32 rounded-2xl mb-4"
+              resizeMode="contain"
+            />
             <Text
               className={`text-3xl font-bold mb-2 ${
                 isDark ? "text-white" : "text-gray-900"
@@ -124,7 +129,7 @@ export default function SignUpScreen() {
                 isDark ? "text-gray-300" : "text-gray-600"
               }`}
             >
-              Sign up to get started
+              Join TaskFlow AI
             </Text>
           </View>
 

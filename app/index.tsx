@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Platform,
   StatusBar,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -29,14 +30,15 @@ export default function SplashScreen() {
         className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}
       >
         <View className="flex-1 justify-center items-center">
-          <View
-            className={`w-24 h-24 rounded-3xl justify-center items-center mb-4`}
-            style={{ backgroundColor: "#D10000" }}
-          >
-            <Ionicons name="checkmark-done" size={40} color="white" />
-          </View>
+          <Image
+            source={require("../assets/app.png")}
+            className="w-48 h-48 rounded-3xl mb-4"
+            resizeMode="contain"
+          />
           <Text
-            className={`text-lg ${isDark ? "text-white" : "text-gray-900"}`}
+            className={`text-lg ${
+              isDark ? "text-white" : "text-gray-900"
+            } flex justify-center items-center`}
           >
             Loading...
           </Text>
@@ -59,12 +61,11 @@ export default function SplashScreen() {
 
         <View className="flex-1 justify-center items-center px-8">
           {/* App Logo/Icon */}
-          <View
-            className={`w-24 h-24 rounded-3xl justify-center items-center mb-8 shadow-lg`}
-            style={{ backgroundColor: "#D10000" }}
-          >
-            <Ionicons name="checkmark-done" size={40} color="white" />
-          </View>
+          <Image
+            source={require("../assets/app.png")}
+            className="w-48 h-48 rounded-3xl mb-8"
+            resizeMode="contain"
+          />
 
           {/* App Name and Subtitle */}
           <Text
@@ -72,7 +73,7 @@ export default function SplashScreen() {
               isDark ? "text-white" : "text-gray-900"
             }`}
           >
-            AI Task Manager
+            TaskFlow AI
           </Text>
           <Text
             className={`text-lg text-center mb-12 ${
@@ -107,20 +108,6 @@ export default function SplashScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-
-          {/* Skip to Demo */}
-          <TouchableOpacity
-            onPress={() => router.push("/(tabs)")}
-            className="mt-8"
-          >
-            <Text
-              className={`text-sm underline ${
-                isDark ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
-              Continue as Guest
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

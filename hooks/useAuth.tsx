@@ -1,15 +1,23 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { Session, User } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
+import { router } from "expo-router";
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string
+  ) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  updateProfile: (data: { full_name?: string; avatar_url?: string }) => Promise<{ error: any }>;
+  updateProfile: (data: {
+    full_name?: string;
+    avatar_url?: string;
+  }) => Promise<{ error: any }>;
   updateAvatar: (avatarUrl: string) => Promise<{ error: any }>;
 }
 
@@ -74,46 +82,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Sign out error:", error);
+      } else {
+        // Explicitly set user to null to trigger the redirect
+        setUser(null);
+        setSession(null);
+        // Force navigation to login page
+        router.replace("/(auth)/login");
+      }
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   };
 
-  const updateProfile = async (data: { full_name?: string; avatar_url?: string }) => {
+  const updateProfile = async (data: {
+    full_name?: string;
+    avatar_url?: string;
+  }) => {
     try {
       const { error } = await supabase.auth.updateUser({
-        data: data
+        data: data,
       });
 
       if (error) {
-        console.error('Error updating profile:', error);
+        console.error("Error updating profile:", error);
         return { error };
       }
 
       return { error: null };
     } catch (err: any) {
-      console.error('Error in updateProfile:', err);
+      console.error("Error in updateProfile:", err);
       return { error: err };
     }
   };
 
   const updateAvatar = async (avatarUrl: string) => {
     try {
-      console.log('Updating avatar URL:', avatarUrl);
-      
+      console.log("Updating avatar URL:", avatarUrl);
+
       const { error } = await supabase.auth.updateUser({
         data: {
-          avatar_url: avatarUrl
-        }
+          avatar_url: avatarUrl,
+        },
       });
 
       if (error) {
-        console.error('Error updating avatar:', error);
+        console.error("Error updating avatar:", error);
         return { error };
       }
 
-      console.log('Avatar updated successfully');
+      console.log("Avatar updated successfully");
       return { error: null };
     } catch (err: any) {
-      console.error('Error in updateAvatar:', err);
+      console.error("Error in updateAvatar:", err);
       return { error: err };
     }
   };
@@ -129,17 +153,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateAvatar,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

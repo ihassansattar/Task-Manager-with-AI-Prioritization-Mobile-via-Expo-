@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../hooks/useTheme";
 import { useAuth } from "../../hooks/useAuth";
 import { useEffect } from "react";
+import { Platform } from "react-native";
 
 function ProtectedLayout() {
   const { user, loading } = useAuth();
@@ -10,7 +11,7 @@ function ProtectedLayout() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/");
+      router.replace("/(auth)/login");
     }
   }, [user, loading, router]);
 
@@ -30,9 +31,9 @@ export default function TabLayout() {
             backgroundColor: isDark ? "#1F2937" : "#FFFFFF",
             borderTopColor: isDark ? "#374151" : "#E5E7EB",
             borderTopWidth: 1,
-            paddingBottom: 0,
+            paddingBottom: Platform.OS === "ios" ? 34 : 0,
             paddingTop: 0,
-            height: 60,
+            height: Platform.OS === "ios" ? 94 : 60,
           },
           tabBarActiveTintColor: "#D10000",
           tabBarInactiveTintColor: isDark ? "#9CA3AF" : "#6B7280",

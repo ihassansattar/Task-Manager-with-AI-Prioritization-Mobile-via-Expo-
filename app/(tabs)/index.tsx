@@ -9,6 +9,7 @@ import {
   Platform,
   StatusBar,
   Alert,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -114,21 +115,28 @@ export default function TaskListScreen() {
       >
         {/* Header */}
         <View className="flex-row items-center justify-between px-4 py-2">
-          <View>
-            <Text
-              className={`text-2xl font-bold ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
-            >
-              AI Task Manager
-            </Text>
-            <Text
-              className={`text-sm ${
-                isDark ? "text-gray-400" : "text-gray-600"
-              }`}
-            >
-              {pendingTasks.length} pending, {completedTasks.length} completed
-            </Text>
+          <View className="flex-row items-center">
+            <Image
+              source={require("../../assets/app.png")}
+              className="w-12 h-12 rounded-lg mr-3"
+              resizeMode="contain"
+            />
+            <View>
+              <Text
+                className={`text-2xl font-bold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                TaskFlow AI
+              </Text>
+              <Text
+                className={`text-sm ${
+                  isDark ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {pendingTasks.length} pending, {completedTasks.length} completed
+              </Text>
+            </View>
           </View>
           <ThemeToggle />
         </View>
@@ -178,8 +186,6 @@ export default function TaskListScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Task List */}
-        {loading && <Text className={`${isDark ? 'text-white' : 'text-black'}`}>Loading...</Text>}
         {error && <Text className="text-red-500">{error}</Text>}
         {!loading && !error && currentTasks.length === 0 ? (
           renderEmptyState()

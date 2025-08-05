@@ -29,7 +29,8 @@ class MinIOService {
    * Generate a unique filename for the uploaded image
    */
   private generateFileName(userId: string, extension: string): string {
-    return `avatars/${userId}.${extension}`;
+    const timestamp = Date.now();
+    return `avatars/${userId}-${timestamp}.${extension}`;
   }
 
   /**
